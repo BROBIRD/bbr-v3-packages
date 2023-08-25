@@ -84,13 +84,13 @@ jobs:
           with: 
             arch: none
             distro: none
-            base_image: debian:bookworm-slim
+            base_image: --platform=linux/amd64 debian:bookworm-slim
             dockerRunArgs: |
               --volume "${PWD}/bbr:/root/bbr"
             shell: /bin/bash
             install: |
-              sudo apt-get update -q -y
-              sudo apt-get install sudo build-essential nice libncurses5-dev -q -y
+              apt-get update -q -y
+              apt-get install sudo build-essential nice libncurses5-dev -q -y
             run: |
               export KDEB_COMPRESS="xz"
               make prepare

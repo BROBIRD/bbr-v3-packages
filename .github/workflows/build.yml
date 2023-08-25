@@ -90,7 +90,7 @@ jobs:
             shell: /bin/bash
             install: |
               sudo apt-get update -q -y
-              sudo apt-get install build-essential nice libncurses5-dev -q -y
+              sudo apt-get install sudo build-essential nice libncurses5-dev -q -y
             run: |
               export KDEB_COMPRESS="xz"
               make prepare

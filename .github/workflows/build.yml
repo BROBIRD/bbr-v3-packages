@@ -90,11 +90,11 @@ jobs:
             shell: /bin/bash
             install: |
               apt-get update -q -y
-              apt-get install sudo build-essential nice libncurses5-dev -q -y
+              apt-get install sudo build-essential libncurses5-dev -q -y
             run: |
               export KDEB_COMPRESS="xz"
               make prepare
-              nice make \
+              make \
               LOCALVERSION="" \
               -j`nproc` \
               bindeb-pkg

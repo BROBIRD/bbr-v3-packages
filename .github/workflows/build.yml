@@ -30,7 +30,6 @@ jobs:
           id: time
           run: |
             sudo timedatectl set-timezone Asia/Shanghai
-            sudo systemctl restart systemd-timesyncd
             echo "time=$(date "+%Y-%m-%d-%H%M%S-%Z")" >> $GITHUB_OUTPUT
 
         # - name: Setup dependencies

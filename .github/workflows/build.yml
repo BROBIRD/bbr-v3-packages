@@ -162,7 +162,7 @@ jobs:
               yum -y groupinstall "Development Tools"
               yum -y install ncurses-devel hmaccalc zlib-devel \
                 binutils-devel elfutils-libelf-devel
-              yum -y bc gcc gcc-c++ ncurses cmake openssl-devel \
+              yum -y install bc gcc gcc-c++ ncurses cmake openssl-devel \
                 rpm-build redhat-rpm-config asciidoc \
                 perl-ExtUtils-Embed xmlto audit-libs-devel \
                 elfutils-devel newt-devel python-devel

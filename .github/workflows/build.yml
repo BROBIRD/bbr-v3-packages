@@ -90,7 +90,11 @@ jobs:
             shell: /bin/bash
             install: |
               apt-get update -q -y
-              apt-get install sudo build-essential libncurses5-dev -q -y
+              apt-get install -q -y build-essential \
+                bc kmod flex libncurses5-dev \
+                libelf-dev libssl-dev dwarves bison debhelper \
+                gawk openssl libssl-dev dkms libudev-dev \
+                libpci-dev libiberty-dev autoconf
             run: |
               cd bbr
               export KDEB_COMPRESS="xz"

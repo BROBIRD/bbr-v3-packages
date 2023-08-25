@@ -94,7 +94,7 @@ jobs:
                 bc kmod flex libncurses5-dev \
                 libelf-dev libssl-dev dwarves bison debhelper \
                 gawk openssl libssl-dev dkms libudev-dev \
-                libpci-dev libiberty-dev autoconf
+                libpci-dev libiberty-dev autoconf rsync cpio
             run: |
               cd bbr
               export KDEB_COMPRESS="xz"

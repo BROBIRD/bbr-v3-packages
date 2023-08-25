@@ -46,7 +46,7 @@ jobs:
         #   uses: mozilla-actions/sccache-action@v0.0.3
 
         - name: Get .config
-          run: curl -sSL https://raw.githubusercontent.com/BROBIRD/bbr-v3-deb/docker-test/Debian-Vultr.config > bbr/.config
+          run: curl -sSL https://raw.githubusercontent.com/BROBIRD/bbr-v3-pkg/docker-test/Debian-Vultr.config > bbr/.config
 
         # - name: Setup cache
         #   uses: actions/cache@v3

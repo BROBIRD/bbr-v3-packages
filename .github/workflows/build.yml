@@ -11,13 +11,13 @@ on:
           - pre-release
           - release
 
-env:
-  SCCACHE_CACHE_SIZE: 5G
-  SCCACHE_DIR: /home/runner/.cache/sccache
+# env:
+#   SCCACHE_CACHE_SIZE: 1G
+#   SCCACHE_DIR: /home/runner/.cache/sccache
 
 jobs:
     build:
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-22.04
       steps:
         - name: Checkout
           uses: actions/checkout@v3
@@ -28,53 +28,79 @@ jobs:
 
         - name: Get current time
           id: time
-          run: echo "time=$(date -u "+%Y-%m-%d-%H%M%S")" >> $GITHUB_OUTPUT
-
-        - name: Setup dependencies
           run: |
-            sudo apt-get update
-            sudo apt-fast install -y build-essential \
-              bc kmod cpio flex libncurses5-dev \
-              libelf-dev libssl-dev dwarves bison debhelper \
-              gawk openssl libssl-dev dkms libudev-dev \
-              libpci-dev libiberty-dev autoconf \
-              gcc-13 rpm
+            sudo timedatectl set-timezone Asia/Shanghai
+            sudo systemctl restart systemd-timesyncd
+            echo "time=$(date "+%Y-%m-%d-%H%M%S-%Z")" >> $GITHUB_OUTPUT
+
+        # - name: Setup dependencies
+        #   run: |
+        #     sudo apt-get update
+        #     sudo apt-fast install -y build-essential \
+        #       bc kmod cpio flex libncurses5-dev \
+        #       libelf-dev libssl-dev dwarves bison debhelper \
+        #       gawk openssl libssl-dev dkms libudev-dev \
+        #       libpci-dev libiberty-dev autoconf \
+        #       gcc-13
         
-        - name: Setup sccache
-          uses: mozilla-actions/sccache-action@v0.0.3
+        # - name: Setup sccache
+        #   uses: mozilla-actions/sccache-action@v0.0.3
 
         - name: Get .config
-          run: curl -sSL https://raw.githubusercontent.com/Zxilly/bbr-v3-deb/master/.config > bbr/.config
+          run: curl -sSL https://raw.githubusercontent.com/BROBIRD/bbr-v3-deb/docker-test/Debian-Vultr.config > bbr/.config
 
-        - name: Setup cache
-          uses: actions/cache@v3
-          with:
-            path: /home/runner/.cache/sccache
-            key: sccache-${{ hashFiles('bbr/.config') }}
+        # - name: Setup cache
+        #   uses: actions/cache@v3
+        #   with:
+        #     path: /home/runner/.cache/sccache
+        #     key: sccache-${{ hashFiles('bbr/.config') }}
         
-        - name: Build
-          working-directory: bbr
-          run: |
-            # Manual set deb compression to xz
-            export KDEB_COMPRESS="xz"
-            make prepare
-            # Build
-            nice make \
+        # - name: Build
+        #   working-directory: bbr
+        #   run: |
+        #     # Manual set deb compression to xz
+        #     export KDEB_COMPRESS="xz"
+        #     make prepare
+        #     # Build
+        #     nice make \
+        #       LOCALVERSION="" \
+        #       CC="sccache gcc-13" \
+        #       -j`nproc` \
+        #       bindeb-pkg
+        #     nice make \
+        #       LOCALVERSION="" \
+        #       CC="sccache gcc-13" \
+        #       -j`nproc` \
+        #       binrpm-pkg
+        
+        # - name: Upload config
+        #   uses: actions/upload-artifact@v3
+        #   with:
+        #     name: config
+        #     path: bbr/.config
+
+        - name: Build in Docker
+          uses: uraimo/run-on-arch-action@v2
+          id: build
+          with: 
+            arch: none
+            distro: none
+            base_image: debian:bookworm-slim
+            dockerRunArgs: |
+              --volume "${PWD}/bbr:/root/bbr"
+            shell: /bin/bash
+            install: |
+              sudo apt-get update -q -y
+              sudo apt-get install build-essential nice libncurses5-dev -q -y
+            run: |
+              export KDEB_COMPRESS="xz"
+              make prepare
+              nice make \
               LOCALVERSION="" \
-              CC="sccache gcc-13" \
               -j`nproc` \
               bindeb-pkg
-            nice make \
-              LOCALVERSION="" \
-              CC="sccache gcc-13" \
-              -j`nproc` \
-              binrpm-pkg
-        
-        - name: Upload config
-          uses: actions/upload-artifact@v3
-          with:
-            name: config
-            path: bbr/.config
+              cp ../linux-*.deb ./
+
         
         - name: Upload deb
           uses: actions/upload-artifact@v3
@@ -82,11 +108,11 @@ jobs:
             name: deb
             path: linux-*.deb
         
-        - name: Upload rpm
-          uses: actions/upload-artifact@v3
-          with:
-            name: rpm
-            path: /home/runner/rpmbuild/RPMS/x86_64/*.rpm
+        # - name: Upload rpm
+        #   uses: actions/upload-artifact@v3
+        #   with:
+        #     name: rpm
+        #     path: /home/runner/rpmbuild/RPMS/x86_64/*.rpm
 
         - name: Release
           if: ${{ github.event.inputs.release != 'none' }}

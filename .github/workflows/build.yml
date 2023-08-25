@@ -92,6 +92,7 @@ jobs:
               apt-get update -q -y
               apt-get install sudo build-essential libncurses5-dev -q -y
             run: |
+              echo $PWD
               export KDEB_COMPRESS="xz"
               make prepare
               make \

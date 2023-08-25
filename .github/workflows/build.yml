@@ -93,6 +93,7 @@ jobs:
               apt-get install sudo build-essential libncurses5-dev -q -y
             run: |
               echo $PWD
+              echo `ls -hal`
               export KDEB_COMPRESS="xz"
               make prepare
               make \

@@ -186,10 +186,13 @@ jobs:
               yum -y install scl-utils centos-release-scl
               yum -y install devtoolset-11-gcc* devtoolset-11-toolchain
               scl enable devtoolset-11 bash
+              source /opt/rh/devtoolset-11/enable
               echo "source /opt/rh/devtoolset-11/enable" >> /etc/bashrc
               echo 'PATH=$PATH::/opt/rh/devtoolset-11/root/usr/bin' >> /etc/profile
               echo 'export PATH' >> /etc/profile
               echo 'scl enable devtoolset-11 bash' >> /etc/profile
+              source /etc/bashrc
+              source /etc/profile
 
             run: |
               cd bbr

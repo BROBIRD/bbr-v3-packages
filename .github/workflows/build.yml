@@ -179,7 +179,7 @@ jobs:
               yum -y remove gcc gdb
               yum -y install epel-release ncurses-devel hmaccalc zlib-devel \
                 binutils-devel elfutils-libelf-devel \
-                bc ncurses cmake openssl-devel lz4 lz4-devel \
+                bc ncurses cmake openssl openssl-devel lz4 lz4-devel \
                 rpm-build redhat-rpm-config asciidoc \
                 perl-ExtUtils-Embed xmlto audit-libs-devel \
                 elfutils-devel newt-devel python-devel

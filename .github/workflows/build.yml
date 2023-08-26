@@ -187,16 +187,17 @@ jobs:
               yum -y install devtoolset-11-gcc* devtoolset-11-toolchain
               scl enable devtoolset-11 bash
               source /opt/rh/devtoolset-11/enable
-              echo "source /opt/rh/devtoolset-11/enable" >> /etc/bashrc
-              echo 'PATH=$PATH::/opt/rh/devtoolset-11/root/usr/bin' >> /etc/profile
-              echo 'export PATH' >> /etc/profile
               echo 'scl enable devtoolset-11 bash' >> /etc/profile
-              source /etc/bashrc
-              source /etc/profile
+              echo "source /opt/rh/devtoolset-11/enable" >> /etc/bashrc
+              export PATH="$PATH:/opt/rh/devtoolset-11/root/usr/bin"
+              
 
             run: |
               cd bbr
               export KDEB_COMPRESS="xz"
+              export CC="/opt/rh/devtoolset-11/root/usr/bin/gcc"
+              export CPP="/opt/rh/devtoolset-11/root/usr/bin/cpp"
+              export CXX="/opt/rh/devtoolset-11/root/usr/bin/c++"
               make olddefconfig
               make prepare
               make \

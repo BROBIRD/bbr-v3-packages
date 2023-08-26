@@ -154,7 +154,7 @@ jobs:
               LOCALVERSION="" \
               bindeb-pkg
               cp ../linux-*.deb ./
-              rename .deb .ubuntu.deb *.deb
+              rename '.deb' '.ubuntu.deb' *.deb
 
         - name: Build CentOS
           if: ${{ matrix.config.os == 'centos'}}
@@ -194,9 +194,10 @@ jobs:
               LOCALVERSION="" \
               -j`nproc` \
               binrpm-pkg
-              cp -r ../rpmbuild/ rpmbuild
+              mkdir -p rpmbuild
+              cp -r ../rpmbuild/ ./rpmbuild
 
-                
+
         - name: Upload config
           uses: actions/upload-artifact@v3
           with:

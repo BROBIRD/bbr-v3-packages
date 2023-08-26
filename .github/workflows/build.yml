@@ -28,7 +28,7 @@ jobs:
           config:
             # - { arch: linux/arm64 , os: ubuntu , version: jammy}
             # - { arch: linux/arm64 , os: debian , version: bookworm}
-            - { arch: linux/amd64 , os: ubuntu , version: jammy}
+            # - { arch: linux/amd64 , os: ubuntu , version: jammy}
             # - { arch: linux/amd64 , os: debian , version: bookworm}
             - { arch: linux/amd64 , os: centos , version: 7}
 
@@ -121,8 +121,7 @@ jobs:
               LOCALVERSION="" \
               -j`nproc` \
               bindeb-pkg
-              cp ../linux-*.deb ./
-              rename -v 's/\.deb/\.debian\.deb/' *.deb
+              rename -v 's/\.deb/\.debian\.deb/' ../linux-*.deb
 
         - name: Build Ubuntu
           if: ${{ matrix.config.os == 'ubuntu'}}
@@ -151,8 +150,7 @@ jobs:
               LOCALVERSION="" \
               -j`nproc` \
               bindeb-pkg
-              cp ../linux-*.deb ./
-              rename -v 's/\.deb/\.ubuntu\.deb/' *.deb
+              rename -v 's/\.deb/\.ubuntu\.deb/' ../linux-*.deb
             # run: |
             #   cd bbr
             #   export KDEB_COMPRESS="xz"
@@ -202,8 +200,10 @@ jobs:
               LOCALVERSION="" \
               -j`nproc` \
               binrpm-pkg
-              mkdir -p rpmbuild
-              cp -r ../rpmbuild/ ./rpmbuild
+              ls -hl ~/rpmbuild/RPMS/x86_64/
+              pwd
+              mkdir -p ../rpmbuild
+              cp ~/rpmbuild/RPMS/x86_64/*.rpm ../rpmbuild/
 
 
         - name: Upload config

@@ -186,7 +186,7 @@ jobs:
                 perl-ExtUtils-Embed xmlto audit-libs-devel \
                 elfutils-devel newt-devel python-devel \
                 scl-utils centos-release-scl \
-                devtoolset-11-gcc* devtoolset-11-toolchain
+                devtoolset-11 devtoolset-11-gcc* devtoolset-11-toolchain
               scl enable devtoolset-11 bash
 
             run: |

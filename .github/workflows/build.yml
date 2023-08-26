@@ -51,7 +51,7 @@ jobs:
           run: |
             sudo apt-get install -y jq
             sudo timedatectl set-timezone Asia/Shanghai
-            echo "time=`curl -s https://api.github.com/repos/BROBIRD/bbr-v3-pkg/actions/runs/$GITHUB_RUN_ID | jq '.run_started_at' | sed 's/["|Z]//g'| sed 's/T/\\ /g' |xargs -i date -d "{} +0000" +%Y-%m-%d-%H%M%S-%Z` >> $GITHUB_OUTPUT
+            echo "time=`curl -s https://api.github.com/repos/BROBIRD/bbr-v3-pkg/actions/runs/$GITHUB_RUN_ID | jq '.run_started_at' | sed 's/["|Z]//g'| sed 's/T/\\ /g' |xargs -i date -d "{} +0000" +%Y-%m-%d-%H%M%S-%Z`" >> $GITHUB_OUTPUT
 
 
         # - name: Setup dependencies

@@ -184,9 +184,9 @@ jobs:
                 bc ncurses cmake openssl-devel lz4 lz4-devel \
                 rpm-build redhat-rpm-config asciidoc \
                 perl-ExtUtils-Embed xmlto audit-libs-devel \
-                elfutils-devel newt-devel python-devel \
-                scl-utils centos-release-scl \
-                devtoolset-11 devtoolset-11-gcc* devtoolset-11-toolchain
+                elfutils-devel newt-devel python-devel
+              yum -y install scl-utils centos-release-scl
+              yum -y install devtoolset-11 devtoolset-11-gcc* devtoolset-11-toolchain
               scl enable devtoolset-11 bash
 
             run: |

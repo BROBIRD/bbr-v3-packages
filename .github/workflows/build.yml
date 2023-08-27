@@ -26,10 +26,7 @@ jobs:
         fail-fast: ${{ github.event.inputs.release == 'none' }}
         matrix:
           config:
-            - { arch: linux/arm64 , os: ubuntu , version: jammy}
-            - { arch: linux/arm64 , os: debian , version: bookworm}
-            - { arch: linux/amd64 , os: ubuntu , version: jammy}
-            - { arch: linux/amd64 , os: debian , version: bookworm}
+            - { arch: linux/amd64|linux/arm64 , os: ubuntu/debian , version: jammy/bookwarm}
             - { arch: linux/amd64 , os: centos , version: 7}
 
       steps:
@@ -67,8 +64,8 @@ jobs:
         # - name: Setup sccache
         #   uses: mozilla-actions/sccache-action@v0.0.3
 
-        - name: Get .config
-          run: curl -sSL https://raw.githubusercontent.com/BROBIRD/bbr-v3-pkg/docker-test/.config > bbr/.config
+        # - name: Get .config
+        #   run: curl -sSL https://raw.githubusercontent.com/BROBIRD/bbr-v3-pkg/docker-test/.config > bbr/.config
 
         # - name: Setup cache
         #   uses: actions/cache@v3
@@ -95,74 +92,87 @@ jobs:
         #       binrpm-pkg
 
 
-        - name: Build Debian
-          if: ${{ matrix.config.os == 'debian'}}
-          uses: uraimo/run-on-arch-action@v2
-          id: debian
-          with: 
-            arch: none
-            distro: none
-            base_image: --platform=${{ matrix.config.arch }} debian:${{ matrix.config.version }}-slim
-            dockerRunArgs: |
-              --volume "${PWD}/bbr:/root/bbr"
-            shell: /bin/bash
-            install: |
-              apt-get update -q -y
-              apt-get install -q -y build-essential \
-                bc kmod cpio flex libncurses5-dev liblz4-tool \
-                libelf-dev libssl-dev dwarves bison debhelper \
-                gawk openssl libssl-dev dkms libudev-dev \
-                libpci-dev libiberty-dev autoconf rsync rename
-            run: |
-              cd bbr
-              export KDEB_COMPRESS="xz"
-              make prepare
-              make \
-              LOCALVERSION="" \
-              -j`nproc` \
-              bindeb-pkg
-              rename -v 's/\.deb/\.debian\.deb/' ../linux-*.deb
+        # - name: Build Debian
+        #   if: ${{ matrix.config.os == 'debian'}}
+        #   uses: uraimo/run-on-arch-action@v2
+        #   id: debian
+        #   with: 
+        #     arch: none
+        #     distro: none
+        #     base_image: --platform=${{ matrix.config.arch }} debian:${{ matrix.config.version }}-slim
+        #     dockerRunArgs: |
+        #       --volume "${PWD}/bbr:/root/bbr"
+        #     shell: /bin/bash
+        #     install: |
+        #       apt-get update -q -y
+        #       apt-get install -q -y build-essential \
+        #         bc kmod cpio flex libncurses5-dev liblz4-tool \
+        #         libelf-dev libssl-dev dwarves bison debhelper \
+        #         gawk openssl libssl-dev dkms libudev-dev \
+        #         libpci-dev libiberty-dev autoconf rsync rename
+        #     run: |
+        #       cd bbr
+        #       export KDEB_COMPRESS="xz"
+        #       make olddefconfig
+        #       make prepare
+        #       make \
+        #       LOCALVERSION="" \
+        #       -j`nproc` \
+        #       bindeb-pkg
+        #       rename -v 's/\.deb/\.debian\.deb/' ../linux-*.deb
 
         - name: Build Ubuntu
-          if: ${{ matrix.config.os == 'ubuntu'}}
-          uses: uraimo/run-on-arch-action@v2
-          id: ubuntu
-          with: 
-            arch: none
-            distro: none
-            base_image: --platform=${{ matrix.config.arch }} ubuntu:${{ matrix.config.version }}
-            dockerRunArgs: |
-              --volume "${PWD}/bbr:/root/bbr"
-            shell: /bin/bash
-            install: |
-              apt-get update -q -y
-              apt-get install -q -y build-essential \
-                bc kmod cpio flex libncurses5-dev liblz4-tool \
-                libelf-dev libssl-dev dwarves bison debhelper \
-                gawk openssl libssl-dev dkms libudev-dev \
-                libpci-dev libiberty-dev autoconf rsync rename
-            run: |
-              cd bbr
-              export KDEB_COMPRESS="xz"
-              make olddefconfig
-              make prepare
-              make \
-              LOCALVERSION="" \
-              -j`nproc` \
-              bindeb-pkg
-              rename -v 's/\.deb/\.ubuntu\.deb/' ../linux-*.deb
-            # run: |
-            #   cd bbr
-            #   export KDEB_COMPRESS="xz"
-            #   make olddefconfig
-            #   make prepare
-            #   make \
-            #   LOCALVERSION="" \
-            #   bindeb-pkg
-            #   cp ../linux-*.deb ./
-            #   rename -v 's/\.deb/\.ubuntu\.deb' *.deb
+          if: ${{ matrix.config.os == 'ubuntu/debian'}}
+          run: |
+            apt-get update -q -y
+            apt-fast install -q -y build-essential \
+              bc kmod cpio flex libncurses5-dev liblz4-tool \
+              libelf-dev libssl-dev dwarves bison debhelper \
+              gawk openssl libssl-dev dkms libudev-dev \
+              libpci-dev libiberty-dev autoconf rsync gcc-13 gcc-12-aarch64-linux-gnu
+            update-alternatives --install /usr/bin/aarch64-linux-gnu-gcc aarch64-linux-gnu-gcc /usr/bin/aarch64-linux-gnu-gcc-12 100
+            update-alternatives --install /usr/bin/aarch64-linux-gnu-cpp aarch64-linux-gnu-cpp /usr/bin/aarch64-linux-gnu-cpp-12 100
+            update-alternatives --install /usr/bin/aarch64-linux-gnu-gcc-ar aarch64-linux-gnu-gcc-ar /usr/bin/aarch64-linux-gnu-gcc-ar-12 100
+            update-alternatives --install /usr/bin/aarch64-linux-gnu-gcc-nm aarch64-linux-gnu-gcc-nm /usr/bin/aarch64-linux-gnu-gcc-nm-12 100
+            update-alternatives --install /usr/bin/aarch64-linux-gnu-gcc-ranlib aarch64-linux-gnu-gcc-ranlib /usr/bin/aarch64-linux-gnu-gcc-ranlib-12 100
+            update-alternatives --install /usr/bin/aarch64-linux-gnu-gcov aarch64-linux-gnu-gcov /usr/bin/aarch64-linux-gnu-gcov-12 100
+            update-alternatives --install /usr/bin/aarch64-linux-gnu-gcov-dump aarch64-linux-gnu-gcov-dump /usr/bin/aarch64-linux-gnu-gcov-dump-12 100
+            update-alternatives --install /usr/bin/aarch64-linux-gnu-gcov-tool aarch64-linux-gnu-gcov-tool /usr/bin/aarch64-linux-gnu-gcov-tool-12 100
+            update-alternatives --install /usr/bin/aarch64-linux-gnu-lto-dump aarch64-linux-gnu-lto-dump /usr/bin/aarch64-linux-gnu-lto-dump-12 100
+            curl -sSL https://raw.githubusercontent.com/BROBIRD/bbr-v3-pkg/docker-test/amd64.config > bbr/.config
+            cd bbr
+            export KDEB_COMPRESS="xz"
+            make olddefconfig
+            make prepare
+            nice make \
+            CC="gcc-13"
+            LOCALVERSION="" \
+            -j`nproc` \
+            bindeb-pkg
+            mkdir -p ../DEBs
+            mv ../linux-*.deb ../DEBs
+            make distclean
 
-        - name: Build CentOS
+            curl -sSL https://raw.githubusercontent.com/BROBIRD/bbr-v3-pkg/docker-test/arm64.config > .config
+            make \
+            ARCH="arm64" \
+            CROSS_COMPILE="aarch64-linux-gnu-" \
+            olddefconfig
+            make \
+            ARCH="arm64" \
+            CROSS_COMPILE="aarch64-linux-gnu-" \
+            prepare
+            nice make \
+            ARCH="arm64" \
+            CROSS_COMPILE="aarch64-linux-gnu-" \
+            LOCALVERSION="" \
+            -j`nproc` \
+            bindeb-pkg
+            mkdir -p ../DEBs
+            mv ../linux-*.deb ../DEBs
+
+
+        - name: Build RPMs
           if: ${{ matrix.config.os == 'centos'}}
           uses: uraimo/run-on-arch-action@v2
           id: centos
@@ -188,9 +198,8 @@ jobs:
               source /opt/rh/devtoolset-11/enable
               echo "source /opt/rh/devtoolset-11/enable" >> /etc/bashrc
               export PATH="$PATH:/opt/rh/devtoolset-11/root/usr/bin"
-              
-
             run: |
+              curl -sSL https://raw.githubusercontent.com/BROBIRD/bbr-v3-pkg/docker-test/amd64.config > bbr/.config
               cd bbr
               export KDEB_COMPRESS="xz"
               source /opt/rh/devtoolset-11/enable
@@ -200,37 +209,36 @@ jobs:
               LOCALVERSION="" \
               -j`nproc` \
               binrpm-pkg
-              ls -hl ~/rpmbuild/RPMS/x86_64/
-              pwd
-              mkdir -p ../rpmbuild
-              cp ~/rpmbuild/RPMS/x86_64/*.rpm ../rpmbuild/
+              mkdir -p ../RPMs
+              cp ~/rpmbuild/RPMS/x86_64/*.rpm ../RPMs/
 
 
-        - name: Upload config
-          uses: actions/upload-artifact@v3
-          with:
-            name: config
-            path: bbr/.config      
+        # - name: Upload config
+        #   uses: actions/upload-artifact@v3
+        #   with:
+        #     name: config
+        #     path: bbr/.config      
         
         - name: Upload deb
-          if: ${{ matrix.config.os == 'debian' || matrix.config.os == 'ubuntu' }}
+          if: ${{ matrix.config.os == 'debian/ubuntu' }}
           uses: actions/upload-artifact@v3
           with:
             name: deb
-            path: linux-*.deb
+            path: DEBs/linux-*.deb
         
         - name: Upload rpm
-          if: ${{ matrix.config.os == 'centos' && matrix.config.arch == 'linux/amd64'}}
+          if: ${{ matrix.config.os == 'centos'}}
           uses: actions/upload-artifact@v3
           with:
             name: rpm
-            path: rpmbuild/RPMS/x86_64/*.rpm
+            path: RPMs/*.rpm
 
         - name: Release
           if: ${{ github.event.inputs.release != 'none' }}
           uses: ncipollo/release-action@v1
           with:
-            artifacts: "linux-*.deb,rpmbuild/RPMS/x86_64/*.rpm"
+            allowUpdates: true
+            artifacts: "linux-*.deb,RPMs/*.rpm"
             prerelease: ${{ github.event.inputs.release == 'pre-release' }}
             makeLatest: ${{ github.event.inputs.release == 'release' }}
             tag: ${{ steps.time.outputs.time }}

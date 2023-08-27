@@ -145,7 +145,7 @@ jobs:
             make olddefconfig
             make prepare
             make \
-            CC="gcc-13"
+            CC="gcc-13" \
             LOCALVERSION="" \
             -j`nproc` \
             bindeb-pkg

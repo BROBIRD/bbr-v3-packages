@@ -121,24 +121,24 @@ jobs:
         #       bindeb-pkg
         #       rename -v 's/\.deb/\.debian\.deb/' ../linux-*.deb
 
-        - name: Build Ubuntu
+        - name: Build DEBs
           if: ${{ matrix.config.os == 'ubuntu/debian'}}
           run: |
-            apt-get update -q -y
-            apt-fast install -q -y build-essential \
+            sudo apt-get update -q -y
+            sudo apt-fast install -q -y build-essential \
               bc kmod cpio flex libncurses5-dev liblz4-tool \
               libelf-dev libssl-dev dwarves bison debhelper \
               gawk openssl libssl-dev dkms libudev-dev \
               libpci-dev libiberty-dev autoconf rsync gcc-13 gcc-12-aarch64-linux-gnu
-            update-alternatives --install /usr/bin/aarch64-linux-gnu-gcc aarch64-linux-gnu-gcc /usr/bin/aarch64-linux-gnu-gcc-12 100
-            update-alternatives --install /usr/bin/aarch64-linux-gnu-cpp aarch64-linux-gnu-cpp /usr/bin/aarch64-linux-gnu-cpp-12 100
-            update-alternatives --install /usr/bin/aarch64-linux-gnu-gcc-ar aarch64-linux-gnu-gcc-ar /usr/bin/aarch64-linux-gnu-gcc-ar-12 100
-            update-alternatives --install /usr/bin/aarch64-linux-gnu-gcc-nm aarch64-linux-gnu-gcc-nm /usr/bin/aarch64-linux-gnu-gcc-nm-12 100
-            update-alternatives --install /usr/bin/aarch64-linux-gnu-gcc-ranlib aarch64-linux-gnu-gcc-ranlib /usr/bin/aarch64-linux-gnu-gcc-ranlib-12 100
-            update-alternatives --install /usr/bin/aarch64-linux-gnu-gcov aarch64-linux-gnu-gcov /usr/bin/aarch64-linux-gnu-gcov-12 100
-            update-alternatives --install /usr/bin/aarch64-linux-gnu-gcov-dump aarch64-linux-gnu-gcov-dump /usr/bin/aarch64-linux-gnu-gcov-dump-12 100
-            update-alternatives --install /usr/bin/aarch64-linux-gnu-gcov-tool aarch64-linux-gnu-gcov-tool /usr/bin/aarch64-linux-gnu-gcov-tool-12 100
-            update-alternatives --install /usr/bin/aarch64-linux-gnu-lto-dump aarch64-linux-gnu-lto-dump /usr/bin/aarch64-linux-gnu-lto-dump-12 100
+            sudo update-alternatives --install /usr/bin/aarch64-linux-gnu-gcc aarch64-linux-gnu-gcc /usr/bin/aarch64-linux-gnu-gcc-12 100
+            sudo update-alternatives --install /usr/bin/aarch64-linux-gnu-cpp aarch64-linux-gnu-cpp /usr/bin/aarch64-linux-gnu-cpp-12 100
+            sudo update-alternatives --install /usr/bin/aarch64-linux-gnu-gcc-ar aarch64-linux-gnu-gcc-ar /usr/bin/aarch64-linux-gnu-gcc-ar-12 100
+            sudo update-alternatives --install /usr/bin/aarch64-linux-gnu-gcc-nm aarch64-linux-gnu-gcc-nm /usr/bin/aarch64-linux-gnu-gcc-nm-12 100
+            sudo update-alternatives --install /usr/bin/aarch64-linux-gnu-gcc-ranlib aarch64-linux-gnu-gcc-ranlib /usr/bin/aarch64-linux-gnu-gcc-ranlib-12 100
+            sudo update-alternatives --install /usr/bin/aarch64-linux-gnu-gcov aarch64-linux-gnu-gcov /usr/bin/aarch64-linux-gnu-gcov-12 100
+            sudo update-alternatives --install /usr/bin/aarch64-linux-gnu-gcov-dump aarch64-linux-gnu-gcov-dump /usr/bin/aarch64-linux-gnu-gcov-dump-12 100
+            sudo update-alternatives --install /usr/bin/aarch64-linux-gnu-gcov-tool aarch64-linux-gnu-gcov-tool /usr/bin/aarch64-linux-gnu-gcov-tool-12 100
+            sudo update-alternatives --install /usr/bin/aarch64-linux-gnu-lto-dump aarch64-linux-gnu-lto-dump /usr/bin/aarch64-linux-gnu-lto-dump-12 100
             curl -sSL https://raw.githubusercontent.com/BROBIRD/bbr-v3-pkg/docker-test/amd64.config > bbr/.config
             cd bbr
             export KDEB_COMPRESS="xz"

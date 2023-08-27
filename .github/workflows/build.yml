@@ -37,11 +37,6 @@ jobs:
             ref: v3
             path: bbr
 
-        # - name: Get current time
-        #   id: time
-        #   run: |
-        #     sudo timedatectl set-timezone Asia/Shanghai
-        #     echo "time=$(date "+%Y-%m-%d-%H%M%S-%Z")" >> $GITHUB_OUTPUT
 
         - name: Get Workflow time
           id: time
@@ -50,22 +45,9 @@ jobs:
             sudo timedatectl set-timezone Asia/Shanghai
             echo "time=`curl -s https://api.github.com/repos/BROBIRD/bbr-v3-pkg/actions/runs/$GITHUB_RUN_ID | jq '.run_started_at' | sed 's/["|Z]//g'| sed 's/T/\\ /g' |xargs -i date -d "{} +0000" +%Y-%m-%d-%H%M%S-%Z`" >> $GITHUB_OUTPUT
 
-
-        # - name: Setup dependencies
-        #   run: |
-        #     sudo apt-get update
-        #     sudo apt-fast install -y build-essential \
-        #       bc kmod cpio flex libncurses5-dev \
-        #       libelf-dev libssl-dev dwarves bison debhelper \
-        #       gawk openssl libssl-dev dkms libudev-dev \
-        #       libpci-dev libiberty-dev autoconf \
-        #       gcc-13
         
         # - name: Setup sccache
         #   uses: mozilla-actions/sccache-action@v0.0.3
-
-        # - name: Get .config
-        #   run: curl -sSL https://raw.githubusercontent.com/BROBIRD/bbr-v3-pkg/docker-test/.config > bbr/.config
 
         # - name: Setup cache
         #   uses: actions/cache@v3
@@ -73,56 +55,9 @@ jobs:
         #     path: /home/runner/.cache/sccache
         #     key: sccache-${{ hashFiles('bbr/.config') }}
         
-        # - name: Build
-        #   working-directory: bbr
-        #   run: |
-        #     # Manual set deb compression to xz
-        #     export KDEB_COMPRESS="xz"
-        #     make prepare
-        #     # Build
-        #     nice make \
-        #       LOCALVERSION="" \
-        #       CC="sccache gcc-13" \
-        #       -j`nproc` \
-        #       bindeb-pkg
-        #     nice make \
-        #       LOCALVERSION="" \
-        #       CC="sccache gcc-13" \
-        #       -j`nproc` \
-        #       binrpm-pkg
-
-
-        # - name: Build Debian
-        #   if: ${{ matrix.config.os == 'debian'}}
-        #   uses: uraimo/run-on-arch-action@v2
-        #   id: debian
-        #   with: 
-        #     arch: none
-        #     distro: none
-        #     base_image: --platform=${{ matrix.config.arch }} debian:${{ matrix.config.version }}-slim
-        #     dockerRunArgs: |
-        #       --volume "${PWD}/bbr:/root/bbr"
-        #     shell: /bin/bash
-        #     install: |
-        #       apt-get update -q -y
-        #       apt-get install -q -y build-essential \
-        #         bc kmod cpio flex libncurses5-dev liblz4-tool \
-        #         libelf-dev libssl-dev dwarves bison debhelper \
-        #         gawk openssl libssl-dev dkms libudev-dev \
-        #         libpci-dev libiberty-dev autoconf rsync rename
-        #     run: |
-        #       cd bbr
-        #       export KDEB_COMPRESS="xz"
-        #       make olddefconfig
-        #       make prepare
-        #       make \
-        #       LOCALVERSION="" \
-        #       -j`nproc` \
-        #       bindeb-pkg
-        #       rename -v 's/\.deb/\.debian\.deb/' ../linux-*.deb
 
         - name: Build DEBs
-          if: ${{ matrix.config.os == 'ubuntu/debian'}}
+          if: ${{ matrix.config.os != 'centos'}}
           run: |
             sudo apt-get update -q -y
             sudo apt-fast install -q -y build-essential \
@@ -150,6 +85,7 @@ jobs:
             -j`nproc` \
             bindeb-pkg
             mkdir -p ../DEBs
+            cp .config ../DEBs/deb-amd64.config
             mv ../linux-*.deb ../DEBs
             make distclean
 
@@ -169,6 +105,7 @@ jobs:
             -j`nproc` \
             bindeb-pkg
             mkdir -p ../DEBs
+            cp .config ../DEBs/deb-arm64.config
             mv ../linux-*.deb ../DEBs
 
 
@@ -210,17 +147,12 @@ jobs:
               -j`nproc` \
               binrpm-pkg
               mkdir -p ../RPMs
+              cp .config ../RPMs/rpm-x86_64.config
               cp ~/rpmbuild/RPMS/x86_64/*.rpm ../RPMs/
 
-
-        # - name: Upload config
-        #   uses: actions/upload-artifact@v3
-        #   with:
-        #     name: config
-        #     path: bbr/.config      
         
         - name: Upload deb
-          if: ${{ matrix.config.os == 'debian/ubuntu' }}
+          if: ${{ matrix.config.os != 'centos' }}
           uses: actions/upload-artifact@v3
           with:
             name: deb
@@ -238,7 +170,7 @@ jobs:
           uses: ncipollo/release-action@v1
           with:
             allowUpdates: true
-            artifacts: "linux-*.deb,RPMs/*.rpm"
+            artifacts: "DEBs/linux-*.deb,DEBs/*.config,RPMs/*.rpm,RPMs/*.config"
             prerelease: ${{ github.event.inputs.release == 'pre-release' }}
             makeLatest: ${{ github.event.inputs.release == 'release' }}
             tag: ${{ steps.time.outputs.time }}

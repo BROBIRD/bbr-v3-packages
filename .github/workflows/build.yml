@@ -144,7 +144,7 @@ jobs:
             export KDEB_COMPRESS="xz"
             make olddefconfig
             make prepare
-            nice make \
+            make \
             CC="gcc-13"
             LOCALVERSION="" \
             -j`nproc` \
@@ -162,7 +162,7 @@ jobs:
             ARCH="arm64" \
             CROSS_COMPILE="aarch64-linux-gnu-" \
             prepare
-            nice make \
+            make \
             ARCH="arm64" \
             CROSS_COMPILE="aarch64-linux-gnu-" \
             LOCALVERSION="" \
